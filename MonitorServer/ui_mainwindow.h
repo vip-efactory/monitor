@@ -176,7 +176,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "TCP Server", Q_NULLPTR));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Monitor Server", Q_NULLPTR));
         actStart->setText(QApplication::translate("MainWindow", "\345\274\200\345\247\213\347\233\221\345\220\254", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
         actStart->setToolTip(QApplication::translate("MainWindow", "\345\274\200\345\247\213\347\233\221\345\220\254", Q_NULLPTR));

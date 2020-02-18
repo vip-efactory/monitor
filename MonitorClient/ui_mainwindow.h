@@ -182,7 +182,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "TCP Client", Q_NULLPTR));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Monitor Client", Q_NULLPTR));
         actConnect->setText(QApplication::translate("MainWindow", "\350\277\236\346\216\245\345\210\260\346\234\215\345\212\241\345\231\250", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
         actConnect->setToolTip(QApplication::translate("MainWindow", "\350\277\236\346\216\245\345\210\260TCP\346\234\215\345\212\241\345\231\250", Q_NULLPTR));
