@@ -1,36 +1,10 @@
-﻿#include "mainwindow.h"
+﻿#include "config.h"
+#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include    <QtNetwork>
+#include    <QSettings>
 
-
-QString MainWindow::getLocalIP()
-{//获取本机IPv4地址
-    QString hostName=QHostInfo::localHostName();//本地主机名
-    QHostInfo   hostInfo=QHostInfo::fromName(hostName);
-    QString   localIP="";
-
-    QList<QHostAddress> addList=hostInfo.addresses();//
-
-    if (!addList.isEmpty())
-    for (int i=0;i<addList.count();i++)
-    {
-        QHostAddress aHost=addList.at(i);
-        if (QAbstractSocket::IPv4Protocol==aHost.protocol())
-        {
-            localIP=aHost.toString();
-            break;
-        }
-    }
-    return localIP;
-}
-
-void MainWindow::closeEvent(QCloseEvent *event)
-{//关闭窗口时停止监听
-    if (tcpServer->isListening())
-        tcpServer->close();;//停止网络监听
-    event->accept();
-}
-
+// 构造函数
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -51,16 +25,58 @@ MainWindow::MainWindow(QWidget *parent) :
 
     tcpServer=new QTcpServer(this);
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(onNewConnection()));
+
+//    // 先写配置文件
+//    Config *config = new Config("Settings.ini");
+//    config->Set("Server","ip","127.0.0.1");
+//    config->Set("Server","port","1200");
+
+//    // 从配置文件中读参数
+//    QString ip = config->Get("Server","ip").toString();
+//    int port = config->Get("Server","port").toInt();
+//    // 终端打印
+//    qDebug() << "ip: " << ip;
+//    qDebug() << "port: " << port;
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{//关闭窗口时停止监听
+    if (tcpServer->isListening())
+        tcpServer->close();;//停止网络监听
+    event->accept();
+}
+
+// 析构函数
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
+// 以下为实现的各种方法及槽函数
+QString MainWindow::getLocalIP()
+{//获取本机IPv4地址
+    QString hostName=QHostInfo::localHostName();//本地主机名
+    QHostInfo   hostInfo=QHostInfo::fromName(hostName);
+    QString   localIP="";
+
+    QList<QHostAddress> addList=hostInfo.addresses();//
+
+    if (!addList.isEmpty())
+        for (int i=0;i<addList.count();i++)
+        {
+            QHostAddress aHost=addList.at(i);
+            if (QAbstractSocket::IPv4Protocol==aHost.protocol())
+            {
+                localIP=aHost.toString();
+                break;
+            }
+        }
+    return localIP;
+}
+
 void MainWindow::onNewConnection()
 {
-//    ui->plainTextEdit->appendPlainText("有新连接");
+    //    ui->plainTextEdit->appendPlainText("有新连接");
     tcpSocket = tcpServer->nextPendingConnection(); //创建socket
 
     connect(tcpSocket, SIGNAL(connected()),
@@ -113,9 +129,9 @@ void MainWindow::onClientConnected()
 {//客户端接入时
     ui->plainTextEdit->appendPlainText("**client socket connected");
     ui->plainTextEdit->appendPlainText("**peer address:"+
-                                   tcpSocket->peerAddress().toString());
+                                       tcpSocket->peerAddress().toString());
     ui->plainTextEdit->appendPlainText("**peer port:"+
-                                   QString::number(tcpSocket->peerPort()));
+                                       QString::number(tcpSocket->peerPort()));
 }
 
 void MainWindow::onClientDisconnected()
@@ -127,10 +143,10 @@ void MainWindow::onClientDisconnected()
 
 void MainWindow::onSocketReadyRead()
 {//读取缓冲区行文本
-//    QStringList   lines;
+    //    QStringList   lines;
     while(tcpSocket->canReadLine())
         ui->plainTextEdit->appendPlainText("[in] "+tcpSocket->readLine());
-//        lines.append(clientConnection->readLine());
+    //        lines.append(clientConnection->readLine());
 }
 
 void MainWindow::on_actStart_triggered()
@@ -139,12 +155,12 @@ void MainWindow::on_actStart_triggered()
     quint16     port=ui->spinPort->value();//端口
     QHostAddress    addr(IP);
     tcpServer->listen(addr,port);//
-//    tcpServer->listen(QHostAddress::LocalHost,port);// Equivalent to QHostAddress("127.0.0.1").
+    //    tcpServer->listen(QHostAddress::LocalHost,port);// Equivalent to QHostAddress("127.0.0.1").
     ui->plainTextEdit->appendPlainText("**开始监听...");
     ui->plainTextEdit->appendPlainText("**服务器地址："
-                       +tcpServer->serverAddress().toString());
+                                       +tcpServer->serverAddress().toString());
     ui->plainTextEdit->appendPlainText("**服务器端口："
-                       +QString::number(tcpServer->serverPort()));
+                                       +QString::number(tcpServer->serverPort()));
 
     ui->actStart->setEnabled(false);
     ui->actStop->setEnabled(true);
@@ -188,16 +204,16 @@ void MainWindow::on_actHostInfo_triggered()
 
     QList<QHostAddress> addList=hostInfo.addresses();//
     if (!addList.isEmpty())
-    for (int i=0;i<addList.count();i++)
-    {
-        QHostAddress aHost=addList.at(i);
-        if (QAbstractSocket::IPv4Protocol==aHost.protocol())
+        for (int i=0;i<addList.count();i++)
         {
-            QString IP=aHost.toString();
-            ui->plainTextEdit->appendPlainText("本机IP地址："+aHost.toString());
-            if (ui->comboIP->findText(IP)<0)
-                ui->comboIP->addItem(IP);
+            QHostAddress aHost=addList.at(i);
+            if (QAbstractSocket::IPv4Protocol==aHost.protocol())
+            {
+                QString IP=aHost.toString();
+                ui->plainTextEdit->appendPlainText("本机IP地址："+aHost.toString());
+                if (ui->comboIP->findText(IP)<0)
+                    ui->comboIP->addItem(IP);
+            }
         }
-    }
 
 }
