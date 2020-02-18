@@ -26,17 +26,17 @@ MainWindow::MainWindow(QWidget *parent) :
     tcpServer=new QTcpServer(this);
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(onNewConnection()));
 
-//    // 先写配置文件
-//    Config *config = new Config("Settings.ini");
-//    config->Set("Server","ip","127.0.0.1");
-//    config->Set("Server","port","1200");
-
-//    // 从配置文件中读参数
-//    QString ip = config->Get("Server","ip").toString();
-//    int port = config->Get("Server","port").toInt();
-//    // 终端打印
-//    qDebug() << "ip: " << ip;
-//    qDebug() << "port: " << port;
+    // 从配置文件中读参数,如果有配置则使用配置文件里的配置
+    Config *config = new Config("Settings.ini");
+    QString ip = config->Get("Server","ip").toString();
+    int port = config->Get("Server","port").toInt();
+    if(!ip.isEmpty()){
+        // 设置配置文件里的IP地址
+        ui->comboIP->setCurrentText(ip);
+    }
+    if(port > 0){
+        ui->spinPort->setValue(port); // 设置配置文件里的port信息
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -166,6 +166,19 @@ void MainWindow::on_actStart_triggered()
     ui->actStop->setEnabled(true);
 
     LabListen->setText("监听状态：正在监听");
+
+    // 如果IP与port和配置文件里不一样则,写入配置文件
+    // 从配置文件中读参数
+    Config *config = new Config("Settings.ini");
+    QString ip = config->Get("Server","ip").toString();
+    int port2 = config->Get("Server","port").toInt();
+    if(IP != ip){
+        config->Set("Server","ip",IP);
+    }
+    if(port !=port2 ){
+        config->Set("Server","port",port);
+    }
+
 }
 
 void MainWindow::on_actStop_triggered()
